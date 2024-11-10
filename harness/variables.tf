@@ -31,21 +31,26 @@ variable "template_repo_name" {
 }
 
 variable "repositories" {
-  description = "List of repositories to create, including name and type"
+  description = "List of repositories to create, including name and type, along with project details"
   type = list(object({
-    repo_name = string
-    repo_type = string  # e.g., "microservice" or "library"
+    orgIdentifier     = string
+    projectIdentifier = string
+    repo_name         = string
+    repo_type         = string # e.g., "microservice" or "library"
   }))
-  
-  # Default value for the repositories variable
+
   default = [
     {
-      repo_name = "sarthak-microservice"
-      repo_type = "microservice"
+      orgIdentifier     = "default"
+      projectIdentifier = "default_project"
+      repo_name         = "sarthak-microservice"
+      repo_type         = "microservice"
     },
     {
-      repo_name = "sarthak-library"
-      repo_type = "library"
+      orgIdentifier     = "default"
+      projectIdentifier = "default_project"
+      repo_name         = "sarthak-library"
+      repo_type         = "library"
     }
   ]
 }

@@ -1,6 +1,29 @@
-pipeline:
-  name: ${repo_name}
-  identifier: ${repo_name}
-  projectIdentifier: default_project
-  orgIdentifier: default
-  tags: {}
+service:
+  name: {repo_name}
+  identifier: {repo_name}
+  orgIdentifier: ${org_identifier}
+  projectIdentifier: ${project_identifier}
+  serviceDefinition:
+    spec:
+      manifests:
+        - manifest:
+            identifier: INT
+            type: HelmChart
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: account.Github_OAuth_1719255138258
+                  gitFetchType: Branch
+                  folderPath: "/helm-charts/helm-charts"
+                  repoName: helm-charts
+                  branch: master
+              subChartPath: ""
+              valuesPaths:
+              - manifests/${repo_name}/sit/configmap/configmap.yaml
+              - manifests/${repo_name}/sit/immutable/values.yaml
+              skipResourceVersioning: false
+              enableDeclarativeRollback: false
+              helmVersion: V3
+              fetchHelmChartMetadata: false
+    type: Kubernetes
