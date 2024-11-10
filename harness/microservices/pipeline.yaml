@@ -1,0 +1,6 @@
+pipeline:
+  name: ${repo_name}
+  identifier: ${repo_name}
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
