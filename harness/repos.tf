@@ -41,7 +41,7 @@ resource "time_sleep" "wait_for_repo_creation" {
   depends_on = [
     github_repository_file.repo_files
   ]
-  create_duration = "30s"
+  create_duration = "15s"
 }
 
 resource "github_repository" "new_repo" {
@@ -99,25 +99,28 @@ resource "harness_platform_pipeline" "pipeline" {
   }
 }
 
-resource "harness_platform_service" "service" {
-  for_each = {
-    for repo in var.repositories :
-    "${repo.orgIdentifier}-${repo.projectIdentifier}-${repo.repo_name}" => repo
-  }
-  
-  depends_on = [github_repository_file.repo_files, time_sleep.wait_for_repo_creation]
+# resource "harness_platform_service" "service" {
+#   for_each = {
+#     for repo in var.repositories :
+#     "${repo.orgIdentifier}-${repo.projectIdentifier}-${repo.repo_name}" => repo
+#   }
 
-  # Define the service name, identifier, and org/project
-  name            = each.value.repo_name
-  identifier      = each.value.repo_name
-  org_id          = each.value.orgIdentifier
-  project_id      = each.value.projectIdentifier
-  yaml = templatefile("${path.module}/microservices/${each.value.repo_name}/service.yaml", {
-    repo_name     = each.value.repo_name
-    org_identifier = each.value.orgIdentifier
-    project_identifier = each.value.projectIdentifier
-  })
-}
+#   depends_on = [github_repository_file.repo_files]
+
+#   name        = each.value.repo_name
+#   identifier  = each.value.repo_name
+#   org_id      = each.value.orgIdentifier
+#   project_id  = each.value.projectIdentifier
+
+#   # Dynamically import YAML for each environment
+#   yaml = templatefile("https://raw.githubusercontent.com/${var.github_owner}/${each.value.repo_name}/master/.harness/service-${each.value.repo_name}-${each.value.environment}.yaml", {
+#     repo_name     = each.value.repo_name
+#     org_identifier = each.value.orgIdentifier
+#     project_identifier = each.value.projectIdentifier
+#     environment   = each.value.environment
+#   })
+# }
+
 
 
 output "repository_urls" {
