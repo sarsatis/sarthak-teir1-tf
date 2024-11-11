@@ -1,7 +1,7 @@
 locals {
   repo_files = flatten([
     for repo in var.repositories : [
-      for file in(
+      for file in (
         repo.repo_type == "microservice" ? [
           {
             file     = ".harness/pipeline.yaml"
@@ -18,14 +18,14 @@ locals {
             template = "${path.module}/microservices/service-int.yaml"
             filename = "service-int.yaml"
           }
-          ] : [
+        ] : (repo.repo_type == "library" ? [
           {
             file     = ".harness/pipeline.yaml"
             template = "${path.module}/library/pipeline.yaml"
             filename = "pipeline.yaml"
           }
-        ]
-        ) : {
+        ] : [])
+      ) : {
         org_identifier     = repo.orgIdentifier
         project_identifier = repo.projectIdentifier
         repo_name          = repo.repo_name
@@ -36,6 +36,7 @@ locals {
     ]
   ])
 }
+
 
 resource "time_sleep" "wait_for_repo_creation" {
   depends_on = [
@@ -77,6 +78,7 @@ resource "harness_platform_pipeline" "pipeline" {
   for_each = {
     for repo in var.repositories :
     "${repo.orgIdentifier}-${repo.projectIdentifier}-${repo.repo_name}" => repo
+    if repo.repo_type != "devops"
   }
   depends_on = [github_repository_file.repo_files, time_sleep.wait_for_repo_creation]
 
@@ -113,11 +115,11 @@ resource "harness_platform_pipeline" "pipeline" {
 #   project_id  = each.value.projectIdentifier
 
 #   # Dynamically import YAML for each environment
-#   yaml = templatefile("https://raw.githubusercontent.com/${var.github_owner}/${each.value.repo_name}/master/.harness/service-${each.value.repo_name}-${each.value.environment}.yaml", {
+#   yaml = templatefile("https://raw.githubusercontent.com/${var.github_owner}/${each.value.repo_name}/master/.harness/service-dev.yaml", {
 #     repo_name     = each.value.repo_name
 #     org_identifier = each.value.orgIdentifier
 #     project_identifier = each.value.projectIdentifier
-#     environment   = each.value.environment
+#     # environment   = each.value.environment
 #   })
 # }
 
